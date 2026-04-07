@@ -1,0 +1,85 @@
+# -------------------------
+# OS Files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Environment Variables
+# -------------------------
+.env
+.env.*
+*.env
+
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+
+# -------------------------
+# Node.js
+# -------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# -------------------------
+# Logs
+# -------------------------
+logs/
+*.log
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -------------------------
+# Database Files
+# -------------------------
+*.sqlite3
+*.db
+
+# -------------------------
+# Temporary Files
+# -------------------------
+*.tmp
+*.temp
+.cache/
+
+# -------------------------
+# Coverage / Testing
+# -------------------------
+coverage/
+.coverage
+htmlcov/
+
+# -------------------------
+# Build Outputs
+# -------------------------
+.out/
+build/
+dist/
+
+# -------------------------
+# Misc
+# -------------------------
+*.bak
+*.old
