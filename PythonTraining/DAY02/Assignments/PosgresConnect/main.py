@@ -1,17 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-import models, auth
 
-from fastapi.security import OAuth2PasswordBearer
-
-models.Base.metadata.create_all(bind=engine)
+import models
+import auth
+import schemas
+from database import engine, SessionLocal, Base
 
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 
+# Dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -20,44 +21,54 @@ def get_db():
         db.close()
 
 
+
 @app.post("/register")
-def register(email: str, password: str, db: Session = Depends(get_db)):
-    existing = db.query(models.User).filter(models.User.email == email).first()
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+
+    existing = db.query(models.User).filter(models.User.email == user.email).first()
 
     if existing:
         raise HTTPException(status_code=400, detail="User already exists")
 
-    hashed = auth.hash_password(password)
+    print("PASSWORD:", user.password)
+    print("LENGTH:", len(user.password.encode()))
 
-    user = models.User(email=email, hashed_password=hashed)
+    hashed = auth.hash_password(user.password)
 
-    db.add(user)
+    new_user = models.User(
+        email=user.email,
+        hashed_password=hashed
+    )
+
+    db.add(new_user)
     db.commit()
-    db.refresh(user)
 
     return {"message": "User created"}
 
 
-@app.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == email).first()
 
-    if not user or not auth.verify_password(password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+@app.post("/login")
+def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
+
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
+
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Invalid email")
+
+    if not auth.verify_password(user.password, db_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid password")
 
     token = auth.create_access_token({"sub": user.email})
 
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    return {"access_token": token, "token_type": "bearer"}
 
 
 @app.get("/me")
-def get_me(token: str = Depends(oauth2_scheme)):
+def get_me(token: str):
+
     payload = auth.decode_token(token)
 
-    if payload is None:
+    if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
 
     return {"user": payload["sub"]}

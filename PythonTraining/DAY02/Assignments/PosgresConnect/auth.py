@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 
 load_dotenv()
@@ -14,7 +14,10 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str):
+    if len(password.encode("utf-8")) > 72:
+        raise ValueError("Password too long (max 72 bytes)")
     return pwd_context.hash(password)
+
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
