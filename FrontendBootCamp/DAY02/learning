@@ -1,0 +1,48 @@
+.Dom 
+    -get element
+    -session storage
+    -index db
+    -local storage
+    -cookie(always ask user about cookie policy)
+    
+    
+
+.JS
+    -debugger
+    -es6
+    -arrow function
+    -template literals (`${name}`)
+    -destructuring data
+    -spread operator
+    -rest operator
+    -event loop
+    -Working of js
+        -Heap, Stack
+    -callback queue
+    -promises(resolve,reject) pending, resolved, rejected
+    -async await
+
+.React-
+    -Pure and impure Functions
+    -pnpm
+    -viewSource
+    -react dev tools
+    -client side rendering , server side rendering
+    -use state
+    -feature slice design 
+    -throttling
+    -custom
+    -map, filter, reduce
+    -debounce
+
+
+
+
+
+
+
+
+
+
+    
+    
