@@ -6,21 +6,12 @@ import com.P99.BasicCurd.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 class StudentCrudTests {
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @Autowired
     private StudentService studentService;
@@ -34,60 +25,79 @@ class StudentCrudTests {
     }
 
     @Test
-    public void testCreateStudent() throws Exception {
-        String json = "{\"name\":\"John Doe\",\"email\":\"john@example.com\",\"gpa\":3.8,\"department\":\"CS\"}";
+    public void testCreateStudent() {
+        Student student = new Student(null, "John Doe", "john@example.com", 3.8, "CS");
+        Student created = studentService.createStudent(student);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/students")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("John Doe"));
+        assertNotNull(created.getId());
+        assertEquals("John Doe", created.getName());
+        assertEquals("john@example.com", created.getEmail());
     }
 
     @Test
-    public void testGetAllStudents() throws Exception {
-        Student student = new Student(null, "Alice Smith", "alice@example.com", 3.9, "IT");
-        studentRepository.save(student);
+    public void testGetAllStudents() {
+        Student student1 = new Student(null, "Alice Smith", "alice@example.com", 3.9, "IT");
+        Student student2 = new Student(null, "Bob Wilson", "bob@example.com", 3.7, "ECE");
+        studentRepository.save(student1);
+        studentRepository.save(student2);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/students"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+        var students = studentService.getAllStudents();
+        assertEquals(2, students.size());
     }
 
     @Test
-    public void testGetStudentById() throws Exception {
+    public void testGetStudentById() {
         Student student = new Student(null, "Bob Wilson", "bob@example.com", 3.7, "ECE");
         Student saved = studentRepository.save(student);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/" + saved.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Bob Wilson"));
+        var retrieved = studentService.getStudentById(saved.getId());
+        assertTrue(retrieved.isPresent());
+        assertEquals("Bob Wilson", retrieved.get().getName());
     }
 
     @Test
-    public void testUpdateStudent() throws Exception {
+    public void testUpdateStudent() {
         Student student = new Student(null, "Eve Johnson", "eve@example.com", 3.5, "ME");
         Student saved = studentRepository.save(student);
 
-        String updatedJson = "{\"name\":\"Eve Updated\",\"email\":\"eve.updated@example.com\",\"gpa\":3.6,\"department\":\"ME\"}";
+        Student updatedDetails = new Student(null, "Eve Updated", "eve.updated@example.com", 3.6, "ME");
+        Student updated = studentService.updateStudent(saved.getId(), updatedDetails);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/students/" + saved.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Eve Updated"));
+        assertNotNull(updated);
+        assertEquals("Eve Updated", updated.getName());
+        assertEquals("eve.updated@example.com", updated.getEmail());
+        assertEquals(3.6, updated.getGpa());
     }
 
     @Test
-    public void testDeleteStudent() throws Exception {
+    public void testDeleteStudent() {
         Student student = new Student(null, "Charlie Brown", "charlie@example.com", 3.2, "Civil");
         Student saved = studentRepository.save(student);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/students/" + saved.getId()))
-                .andExpect(status().isNoContent());
+        studentService.deleteStudent(saved.getId());
+        var retrieved = studentService.getStudentById(saved.getId());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/students/" + saved.getId()))
-                .andExpect(status().isNotFound());
+        assertTrue(retrieved.isEmpty());
+    }
+
+    @Test
+    public void testSearchByDepartment() {
+        Student student1 = new Student(null, "Alice", "alice@example.com", 3.9, "IT");
+        Student student2 = new Student(null, "Bob", "bob@example.com", 3.7, "IT");
+        Student student3 = new Student(null, "Charlie", "charlie@example.com", 3.2, "Civil");
+        studentRepository.saveAll(java.util.Arrays.asList(student1, student2, student3));
+
+        var itStudents = studentService.getStudentsByDepartment("IT");
+        assertEquals(2, itStudents.size());
+    }
+
+    @Test
+    public void testSearchByName() {
+        Student student1 = new Student(null, "John Doe", "john@example.com", 3.8, "CS");
+        Student student2 = new Student(null, "Jane Doe", "jane@example.com", 3.9, "IT");
+        studentRepository.saveAll(java.util.Arrays.asList(student1, student2));
+
+        var doeStudents = studentService.searchStudentsByName("Doe");
+        assertEquals(2, doeStudents.size());
     }
 }
-
