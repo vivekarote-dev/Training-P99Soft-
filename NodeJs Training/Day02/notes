@@ -1,0 +1,17 @@
+1.Event loop in JS
+2.WEB APIS
+3.Worker thread
+4.Navigator,geolocation
+5.Event loop:   
+    Call Stack
+    Web APIS
+    task queue
+    Microtask queue
+
+6. Microtask Queue
+7.libuv
+8. tower watch
+
+
+
+
