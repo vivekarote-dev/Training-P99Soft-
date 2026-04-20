@@ -38,4 +38,7 @@ CIDR stands for Classless Inter-Domain
     mkdir
 
 #   EC2
-    
+    make a ec2 instance
+    connect to ec2 instance
+
+    ec2-user
