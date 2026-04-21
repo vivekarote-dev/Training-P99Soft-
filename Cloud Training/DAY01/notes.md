@@ -42,3 +42,7 @@ CIDR stands for Classless Inter-Domain
     connect to ec2 instance
 
     ec2-user
+
+
+
+    
